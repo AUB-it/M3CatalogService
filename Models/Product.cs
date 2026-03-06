@@ -1,16 +1,24 @@
-﻿namespace Models;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Models;
 
 public class Product
 {
+    [BsonId]
+    [BsonRepresentation(BsonType.String)]
     public Guid Id { get; set; }
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-    public decimal Price { get; set; }
-    public string? Brand { get; set; }
-    public string? Manufacturer { get; set; }
-    public string? Model { get; set; }
-    public string? ImageUrl { get; set; }
-    public string? ProductUrl { get; set; }
-    public DateTime ReleaseDate { get; set; }
-    public DateTime? ExpiryDate { get; set; }
+    
+    public string? Name { get; set; }          // Produktnavn
+    public string? Description { get; set; }   // Beskrivelse
+    public string? Sku { get; set; }           // SKU (lagerkode)
+    public string? Brand { get; set; }         // Brand
+    public string? Manufacturer { get; set; }  // Producent
+    public string? Model { get; set; }         // Modelnavn
+    public decimal Price { get; set; }         // Pris
+    public string? Currency { get; set; }      // Valuta, fx "DKK"
+    public string? ImageUrl { get; set; }      // Billede-URL
+    public string? ProductUrl { get; set; }    // Link til produkt
+    public DateTime ReleaseDate { get; set; }  // Udgivelsesdato
+    public DateTime? ExpiryDate { get; set; }  // Udløbsdato (valgfri)
 }
