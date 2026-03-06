@@ -1,3 +1,4 @@
+using CatalogService.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 
@@ -7,41 +8,41 @@ namespace CatalogService.Controllers;
 [Route("[controller]")]
 public class CatalogController : ControllerBase
 {
-    private readonly ILogger<CatalogController> _logger;
+    private readonly IProduct _repository;
 
-    // Her skal _products være inde i klassen
-    private static List<Product> _products = new List<Product>()
+    public CatalogController(IProduct repository)
     {
-        new()
-        {
-            Id = new Guid("7125e019-c469-4dbd-93e5-426de6652523"),
-            Name = "Salmon Fillet",
-            Description = "Fresh salmon fillet",
-            Price = 12.99m,
-            Brand = "FishmongerX",
-            Manufacturer = "Fish Supplier",
-            Model = "Standard",
-            ImageUrl = "https://example.com/salmon.jpg",
-            ProductUrl = "https://example.com/salmon",
-            ReleaseDate = DateTime.Now,
-            ExpiryDate = DateTime.Now.AddDays(3),
-        }
-    };
-
-    public CatalogController(ILogger<CatalogController> logger)
-    {
-        _logger = logger;
+        _repository = repository;
     }
-    
+
     [HttpGet]
-    public IEnumerable<Product> GetAll()
+    public async Task<IEnumerable<Product>> Get()
     {
-        return _products;
+        return await _repository.GetAll();
     }
 
-    [HttpGet("{productId}", Name = "GetProductById")]
-    public Product Get(Guid productId)
+    [HttpGet("{id}")]
+    public async Task<Product> Get(Guid id)
     {
-        return _products.Where(p => p.Id == productId).First();
+        return await _repository.GetById(id);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(Product product)
+    {
+        await _repository.Create(product);
+        return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
+    }
+
+    [HttpPut("{id}")]
+    public async Task Update(Guid id, Product product)
+    {
+        await _repository.Update(id, product);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task Delete(Guid id)
+    {
+        await _repository.Delete(id);
     }
 }
