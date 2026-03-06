@@ -32,6 +32,12 @@ public class CatalogController : ControllerBase
     {
         _logger = logger;
     }
+    
+    [HttpGet]
+    public IEnumerable<Product> GetAll()
+    {
+        return _products;
+    }
 
     [HttpGet("{productId}", Name = "GetProductById")]
     public Product Get(Guid productId)
