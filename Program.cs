@@ -1,10 +1,12 @@
 using CatalogService.Repository;
+using DotNetEnv;
 using Scalar.AspNetCore;
 using Models;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Env.Load();
 
 // Add services to the container.
 

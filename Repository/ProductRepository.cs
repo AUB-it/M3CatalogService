@@ -9,7 +9,7 @@ public class ProductRepository : IProduct
     public ProductRepository(IConfiguration configuration)
     {
         // Hent MongoDB connection string fra miljøvariabel
-        var connectionString = configuration["MONGODB_CONNECTION_STRING"];
+        var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
         var databaseName = "CatalogDb"; // kan også sættes via miljøvariabel
         var client = new MongoClient(connectionString);
         var database = client.GetDatabase(databaseName);
