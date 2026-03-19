@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CatalogService.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -9,40 +10,51 @@ namespace CatalogService.Controllers;
 public class CatalogController : ControllerBase
 {
     private readonly IProduct _repository;
-
-    public CatalogController(IProduct repository)
+    private readonly ILogger<CatalogController> _logger;
+    
+    public CatalogController(IProduct repository, ILogger<CatalogController> logger)
     {
         _repository = repository;
+        _logger = logger;
+
+        var hostName = System.Net.Dns.GetHostName();
+        var ips = System.Net.Dns.GetHostAddresses(hostName);
+        var _ipaddr = ips.First().MapToIPv4().ToString();
+        _logger.LogInformation(1, $"XYZ Service responding from {_ipaddr}");
     }
 
     [HttpGet]
     public async Task<IEnumerable<Product>> Get()
     {
+        _logger.LogDebug("Henter alle produkter");
         return await _repository.GetAll();
     }
 
-    [HttpGet("{id}")]
-    public async Task<Product> Get(Guid id)
+    [HttpGet("version")]
+    public async Task<Dictionary<string, string>> GetVersion()
     {
-        return await _repository.GetById(id);
-    }
+        var properties = new Dictionary<string, string>();
+        var ver = FileVersionInfo.GetVersionInfo(typeof(Program).Assembly.Location).ProductVersion;
+        
+        // Logger versionen så det kan ses i log-filen (Opgave D)
+        _logger.LogInformation("Service version forespurgt: {version}", ver);
 
-    [HttpPost]
-    public async Task<IActionResult> Create(Product product)
-    {
-        await _repository.Create(product);
-        return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
-    }
+        properties.Add("service", "HaaV Catalog Service");
+        properties.Add("version", ver!);
 
-    [HttpPut("{id}")]
-    public async Task Update(Guid id, Product product)
-    {
-        await _repository.Update(id, product);
-    }
+        try
+        {
+            var hostName = System.Net.Dns.GetHostName();
+            var ips = await System.Net.Dns.GetHostAddressesAsync(hostName);
+            var ipa = ips.First().MapToIPv4().ToString();
+            properties.Add("hosted-at-address", ipa);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Kunne ikke finde host-adresse");
+            properties.Add("hosted-at-address", "Could not resolve IP-address");
+        }
 
-    [HttpDelete("{id}")]
-    public async Task Delete(Guid id)
-    {
-        await _repository.Delete(id);
+        return properties;
     }
 }

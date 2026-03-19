@@ -1,47 +1,65 @@
 using CatalogService.Repository;
 using DotNetEnv;
 using Scalar.AspNetCore;
+using NLog;
+using NLog.Web;
 using Models;
 using Microsoft.AspNetCore.Mvc;
 
-var builder = WebApplication.CreateBuilder(args);
+var logger = NLog.LogManager.Setup()
+    .LoadConfigurationFromFile("NLog.config")
+    .GetCurrentClassLogger();
 
-Env.Load();
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-builder.Services.AddSingleton<IProduct, ProductRepository>();
-
-var app = builder.Build();
-
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try 
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+    logger.Debug("start min service"); 
 
-app.UseHttpsRedirection();
+    var builder = WebApplication.CreateBuilder(args);
 
-app.UseCors(policy => policy
-    .SetIsOriginAllowed(origin =>
+    Env.Load();
+    
+    builder.Services.AddControllers();
+    builder.Services.AddOpenApi();
+    builder.Services.AddSingleton<IProduct, ProductRepository>();
+    
+    builder.Logging.ClearProviders();
+    builder.Host.UseNLog();
+
+    var app = builder.Build();
+    
+    if (app.Environment.IsDevelopment())
     {
-        if (string.IsNullOrEmpty(origin)) return false;
-        try { return new Uri(origin).Host == "localhost"; }
-        catch { return false; }
-    })
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowCredentials()
-);
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+    }
 
-app.UseAuthorization();
+    app.UseHttpsRedirection();
 
-app.MapControllers();
+    app.UseCors(policy => policy
+        .SetIsOriginAllowed(origin =>
+        {
+            if (string.IsNullOrEmpty(origin)) return false;
+            try { return new Uri(origin).Host == "localhost"; }
+            catch { return false; }
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+    );
 
-app.Run();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
+}
+catch (Exception ex)
+{
+    logger.Error(ex, "Stopped program because of exception");
+    throw;
+}
+finally
+{
+    
+    NLog.LogManager.Shutdown();
+}
