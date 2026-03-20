@@ -7,7 +7,7 @@ using Models;
 using Microsoft.AspNetCore.Mvc;
 
 var logger = NLog.LogManager.Setup()
-    .LoadConfigurationFromFile("NLog.config")
+    .LoadConfigurationFromAppSettings()
     .GetCurrentClassLogger();
 
 try 
