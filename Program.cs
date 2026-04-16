@@ -17,7 +17,8 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     Env.Load();
-    
+
+    builder.Services.AddMemoryCache();
     builder.Services.AddControllers();
     builder.Services.AddOpenApi();
     builder.Services.AddSingleton<IProduct, ProductRepository>();
