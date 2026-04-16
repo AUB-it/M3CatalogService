@@ -12,11 +12,9 @@ public class CatalogController : ControllerBase
 {
     private readonly IProduct _repository;
     private readonly ILogger<CatalogController> _logger;
-    private readonly IMemoryCache _memoryCache;
     
-    public CatalogController(IProduct repository, ILogger<CatalogController> logger, IMemoryCache cache)
+    public CatalogController(IProduct repository, ILogger<CatalogController> logger)
     {
-        _memoryCache = cache;
         _repository = repository;
         _logger = logger;
 
@@ -39,7 +37,7 @@ public class CatalogController : ControllerBase
     {
         _logger.LogDebug("Henter product med id: {id}", id);
         
-        var product = GetProductFromCache(id);
+        var product = _repository.GetProductFromCache(id);
         if (product == null)
         {
             _logger.LogInformation("GetById hentet fra database");
@@ -49,7 +47,7 @@ public class CatalogController : ControllerBase
             if (product != null)
             {
                 _logger.LogInformation("Product gemt i cachen");
-                SetProductInCache(product);
+                _repository.SetProductInCache(product);
             }
         }
         else
@@ -85,28 +83,5 @@ public class CatalogController : ControllerBase
         }
 
         return properties;
-    }
-    
-    private void SetProductInCache(Product product)
-    {
-        var cacheExpiryOptions = new MemoryCacheEntryOptions
-        {
-            AbsoluteExpiration = DateTime.Now.AddHours(1),
-            SlidingExpiration = TimeSpan.FromMinutes(10),
-            Priority = CacheItemPriority.High
-        };
-        _memoryCache.Set(product.Id, product, cacheExpiryOptions);
-    }
-    
-    private Product GetProductFromCache(int productId)
-    {
-        Product product = null;
-        _memoryCache.TryGetValue(productId, out product);
-        return product;
-    }
-    
-    private void RemoveFromCache(int productId)
-    {
-        _memoryCache.Remove(productId);
     }
 }

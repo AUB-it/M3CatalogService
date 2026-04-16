@@ -6,9 +6,11 @@ using Models;
 public class ProductRepository : IProduct
 {
     private readonly IMongoCollection<Product> _products;
+    private readonly IMemoryCache _memoryCache;
 
-    public ProductRepository(IConfiguration configuration)
+    public ProductRepository(IConfiguration configuration, IMemoryCache memoryCache)
     {
+        _memoryCache = memoryCache;
         // Hent MongoDB connection string fra miljøvariabel
         var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
         var databaseName = "CatalogDb"; // kan også sættes via miljøvariabel
@@ -31,4 +33,27 @@ public class ProductRepository : IProduct
 
     public async Task Delete(int id) =>
         await _products.DeleteOneAsync(p => p.Id == id);
+    
+    public void SetProductInCache(Product product)
+    {
+        var cacheExpiryOptions = new MemoryCacheEntryOptions
+        {
+            AbsoluteExpiration = DateTime.Now.AddHours(1),
+            SlidingExpiration = TimeSpan.FromMinutes(10),
+            Priority = CacheItemPriority.High
+        };
+        _memoryCache.Set(product.Id, product, cacheExpiryOptions);
+    }
+    
+    public Product? GetProductFromCache(int productId)
+    {
+        Product product = null;
+        _memoryCache.TryGetValue(productId, out product);
+        return product;
+    }
+    
+    public void RemoveFromCache(int productId)
+    {
+        _memoryCache.Remove(productId);
+    }
 }

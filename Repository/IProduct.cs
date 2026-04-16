@@ -9,4 +9,7 @@ public interface IProduct
         Task Create(Product product);
         Task Update(int id, Product product);
         Task Delete(int id);
+        void SetProductInCache(Product product);
+        Product? GetProductFromCache(int productId);
+        void RemoveFromCache(int productId);
 }
