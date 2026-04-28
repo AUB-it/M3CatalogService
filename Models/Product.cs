@@ -6,7 +6,8 @@ namespace Models;
 public class Product
 {
     [BsonId]
-    public int Id { get; set; }
+    [BsonRepresentation(BsonType.String)]
+    public Guid ProductId { get; set; } = Guid.NewGuid();
     
     public string? Name { get; set; }          // Produktnavn
     public string? Description { get; set; }   // Beskrivelse

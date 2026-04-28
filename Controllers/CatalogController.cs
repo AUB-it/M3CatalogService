@@ -33,7 +33,7 @@ public class CatalogController : ControllerBase
     
     [HttpGet]
     [Route("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         _logger.LogDebug("Henter product med id: {id}", id);
         
@@ -83,5 +83,14 @@ public class CatalogController : ControllerBase
         }
 
         return properties;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] Product product)
+    {
+        _logger.LogInformation("Opretter produkt: {Name} med SKU: {Sku}", product.Name, product.Sku);
+        await _repository.Create(product);
+        _logger.LogInformation("Produkt oprettet med id: {Id}", product.ProductId);
+        return Ok(product);
     }
 }

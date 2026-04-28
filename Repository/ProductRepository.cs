@@ -22,17 +22,17 @@ public class ProductRepository : IProduct
     public async Task<List<Product>> GetAll() =>
         await _products.Find(_ => true).ToListAsync();
 
-    public async Task<Product> GetById(int id) =>
-        await _products.Find(p => p.Id == id).FirstOrDefaultAsync();
+    public async Task<Product> GetById(Guid id) =>
+        await _products.Find(p => p.ProductId == id).FirstOrDefaultAsync();
 
     public async Task Create(Product product) =>
         await _products.InsertOneAsync(product);
 
-    public async Task Update(int id, Product product) =>
-        await _products.ReplaceOneAsync(p => p.Id == id, product);
+    public async Task Update(Guid id, Product product) =>
+        await _products.ReplaceOneAsync(p => p.ProductId == id, product);
 
-    public async Task Delete(int id) =>
-        await _products.DeleteOneAsync(p => p.Id == id);
+    public async Task Delete(Guid id) =>
+        await _products.DeleteOneAsync(p => p.ProductId == id);
     
     public void SetProductInCache(Product product)
     {
@@ -42,17 +42,17 @@ public class ProductRepository : IProduct
             SlidingExpiration = TimeSpan.FromMinutes(10),
             Priority = CacheItemPriority.High
         };
-        _memoryCache.Set(product.Id, product, cacheExpiryOptions);
+        _memoryCache.Set(product.ProductId, product, cacheExpiryOptions);
     }
     
-    public Product? GetProductFromCache(int productId)
+    public Product? GetProductFromCache(Guid productId)
     {
         Product product = null;
         _memoryCache.TryGetValue(productId, out product);
         return product;
     }
     
-    public void RemoveFromCache(int productId)
+    public void RemoveFromCache(Guid productId)
     {
         _memoryCache.Remove(productId);
     }

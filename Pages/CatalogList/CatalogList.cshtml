@@ -1,0 +1,85 @@
+﻿@page "/product/list"
+@model CatalogService.Pages.CatalogList
+@using Models
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <meta name="viewport" content="width=device-width" />
+    <title>Product Catalog</title>
+
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+
+        .box {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container mt-4">
+
+    <div class="box">
+        <h1>Products</h1>
+    </div>
+
+    <hr />
+
+    <a href="/product/create" class="btn btn-primary mb-3">Create New Product</a>
+
+    @if (Model.Products != null && Model.Products.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Description</th>
+                <th>SKU</th>
+                <th>Price</th>
+                <th>Currency</th>
+                <th>Release Date</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            @foreach (var product in Model.Products)
+            {
+                <tr>
+                    <td>@product.Name</td>
+                    <td>@product.Brand</td>
+                    <td>@product.Model</td>
+                    <td>@product.Description</td>
+                    <td>@product.Sku</td>
+                    <td>@product.Price</td>
+                    <td>@product.Currency</td>
+                    <td>@product.ReleaseDate.ToShortDateString()</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No products found.</p>
+    }
+
+    <hr />
+</div>
+</body>
+</html>

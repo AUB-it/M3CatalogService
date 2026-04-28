@@ -5,11 +5,11 @@ namespace CatalogService.Repository;
 public interface IProduct
 {
         Task<List<Product>> GetAll();
-        Task<Product> GetById(int id);
+        Task<Product> GetById(Guid id);
         Task Create(Product product);
-        Task Update(int id, Product product);
-        Task Delete(int id);
+        Task Update(Guid id, Product product);
+        Task Delete(Guid id);
         void SetProductInCache(Product product);
-        Product? GetProductFromCache(int productId);
-        void RemoveFromCache(int productId);
+        Product? GetProductFromCache(Guid productId);
+        void RemoveFromCache(Guid productId);
 }
